@@ -6,7 +6,7 @@ const live = require('./live');
 const post = require('./post');
 
 router.get('/', (req, res, next) => {
-	res.send( {API: ''} );
+	res.json( {API: ''} );
 });
 
 router.use( '/pre', pre );

@@ -18,7 +18,7 @@ router.get('/', (req, res, next) => {
 			<hr/>
 			
 			<ul>
-				<li><a href="/api/post">GET api/pre</a></li>
+				<li><a href="/api/post">GET api/post</a></li>
 			</ul>
 			<hr/>
 			
@@ -34,15 +34,17 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/q', (req, res, next) => {
-	res.send( { easter : { egg: "Q Why did the API go to sleep?" } } );
+	res.json( { easter : { egg: "Q Why did the API go to sleep?" } } );
 });
 router.post('/q', (req, res, next) => {
+	let data;
 	if( req.body.A !== undefined ) {
-		res.send({easter: {egg: "It needed some REST."}});
+		data = {easter: {egg: "A It needed some REST."}};
 	}
 	else {
-		res.send({ Aye : "!" });
+		data = { Aye : "?!" };
 	}
+	res.send(data);
 });
 
 module.exports = router;

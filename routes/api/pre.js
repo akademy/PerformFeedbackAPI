@@ -1,12 +1,25 @@
 const express = require('express'),
 	router = express.Router();
 
+const api = require( "../../lib/api" );
+
+let requestDummy = {
+	appOs: "OS System",
+	appVersion: "current app version",
+	keyUuid: 'fb57887d-0fc5-4005-a588-0ac140336f69',
+	randomUuid: "app generate uuid",
+	requestUuid: "request generated uuid"
+};
+
 router.get('/', (req, res, next) => {
-	res.json( {API: 'pre'} );
+	if( api.requestRespond( requestDummy, res ) ) {
+		res.json( {API: 'pre'} );
+	}
 });
 
 /* Always:
 	request: {
+		appOs: OS System
 		appVersion: current app version,
 		keyUuid: server generate uuid,
 		randomUuid: app generate uuid,

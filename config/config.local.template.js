@@ -5,6 +5,7 @@ const configLocal = {
 	https: {
 		keyFile: /s/,   // 'key.pem',
 		certFile: /s/,  // 'cert.pem',
+		ca: /s/,  // optional, 'ca.crm',
 		port: /d/  // 40443
 	}
 };

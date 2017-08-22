@@ -79,6 +79,10 @@ const options = {
 	cert: fs.readFileSync(config.local.https.certFile)
 };
 
+if( config.local.https.ca ) {
+	options["ca"] = fs.readFileSync(config.local.https.ca);
+}
+
 const server = https.createServer(options, app);
 
 server.listen(port);

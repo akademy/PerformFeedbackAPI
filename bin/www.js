@@ -7,7 +7,8 @@
 const app = require('../app'),
 	debug = require('debug')('performfeedbackapi:server'),
 	fs = require('fs'),
-	https = require('https');
+	https = require('https'),
+	config = require("../config/config");
 
 
 /**
@@ -70,12 +71,12 @@ const onListening = () => {
 	debug('Listening on ' + bind);
 };
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(config.local.https.port || process.env.PORT || '3000');
 app.set('port', port);
 
 const options = {
-	key: fs.readFileSync('assets/httpsCertificates/key.pem'),
-	cert: fs.readFileSync('assets/httpsCertificates/cert.pem')
+	key: fs.readFileSync(config.local.https.keyFile),
+	cert: fs.readFileSync(config.local.https.certFile)
 };
 
 const server = https.createServer(options, app);

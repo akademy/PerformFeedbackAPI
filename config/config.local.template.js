@@ -7,7 +7,8 @@ const configLocal = {
 		certFile: /s/,  // 'cert.pem',
 		ca: /s/,  // optional, 'ca.crm',
 		port: /d/  // 40443
-	}
+	},
+	debug: false
 };
 
 module.exports = configLocal;

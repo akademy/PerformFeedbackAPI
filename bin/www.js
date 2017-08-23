@@ -94,3 +94,5 @@ if( config.local.https.keyFile && config.local.https.certFile ) {
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+console.log( "listening on port " + port );

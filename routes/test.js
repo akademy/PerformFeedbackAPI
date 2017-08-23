@@ -47,4 +47,8 @@ router.post('/q', (req, res, next) => {
 	res.send(data);
 });
 
+router.get('/count', (req, res, next) => {
+	res.json( { count : 222 } );
+});
+
 module.exports = router;

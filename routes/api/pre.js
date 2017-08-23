@@ -6,14 +6,21 @@ const api = require( "../../lib/api" );
 let requestDummy = {
 	appOs: "OS System",
 	appVersion: "current app version",
-	keyUuid: 'fb57887d-0fc5-4005-a588-0ac140336f69',
+	key: 'fb57887d-0fc5-4005-a588-0ac140336f69',
 	randomUuid: "app generate uuid",
-	requestUuid: "request generated uuid"
+	requestId: "request generated uuid"
 };
 
 router.get('/', (req, res, next) => {
 	if( api.requestRespond( requestDummy, res ) ) {
 		res.json( {API: 'pre'} );
+	}
+});
+
+router.post('/', (req, res) => {
+	if( api.requestRespond( req.body, res ) ) {
+		console.log("api/pre", req.body);
+		res.json({hi: "there"});
 	}
 });
 

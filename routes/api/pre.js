@@ -30,6 +30,11 @@ router.post('/', (req, res) => {
 			( error, data ) => {
 				if( !error ) {
 					let response = api.responseSetup( req.body.requestId );
+
+					response.payload = {
+						updated : true
+					};
+
 					res.json( response );
 				}
 			}

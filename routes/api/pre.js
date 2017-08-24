@@ -1,7 +1,9 @@
 const express = require('express'),
 	router = express.Router();
 
-const api = require( "../../lib/api" );
+const api = require( "../../lib/api" ),
+	mongo = require( "../../lib/mongo"),
+	config = require("../../config/config");
 
 let requestDummy = {
 	appOs: "OS System",
@@ -13,14 +15,25 @@ let requestDummy = {
 
 router.get('/', (req, res, next) => {
 	if( api.requestRespond( requestDummy, res ) ) {
-		res.json( {API: 'pre'} );
+		res.json( { API: 'pre' } );
 	}
 });
 
 router.post('/', (req, res) => {
 	if( api.requestRespond( req.body, res ) ) {
 		console.log("api/pre", req.body);
-		res.json({hi: "there"});
+
+		mongo.mongoUpsert(
+			config.mongo.collections.pre,
+			{ randomUuid: req.body.randomUuid },
+			req.body.payload,
+			( error, data ) => {
+				if( !error ) {
+					let response = api.responseSetup( req.body.requestId );
+					res.json( response );
+				}
+			}
+		)
 	}
 });
 

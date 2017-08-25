@@ -23,10 +23,10 @@ router.post('/', (req, res) => {
 	if( api.requestRespond( req.body, res ) ) {
 		console.log("api/pre", req.body);
 
-		mongo.mongoUpsert(
+		mongo.upsert(
 			config.mongo.collections.pre,
 			{ randomUuid: req.body.randomUuid },
-			req.body.payload,
+			mongo.prepareUpsert(req.body.payload,req.body.requestDateTime),
 			( error, data ) => {
 				if( !error ) {
 					let response = api.responseSetup( req.body.requestId );

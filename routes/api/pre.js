@@ -49,6 +49,7 @@ router.post('/', (req, res) => {
 		keyUuid: server generate uuid,
 		randomUuid: app generate uuid,
 		requestUuid: request generated uuid,
+		payload: ...
 	};
 	result: {
 		resultUuid: must match request-uuid,

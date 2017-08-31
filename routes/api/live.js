@@ -1,7 +1,6 @@
 const express = require('express'),
 	router = express.Router();
 
-
 const api = require( "../../lib/api" ),
 	mongo = require( "../../lib/mongo"),
 	config = require("../../config/config");
@@ -11,7 +10,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res) => {
-	if( api.requestRespond( req.body, res ) ) {
+	if( api.requestCheckWithResponse( req.body, res ) ) {
 		console.log("api/live", req.body);
 
 		mongo.upsert(
@@ -20,7 +19,7 @@ router.post('/', (req, res) => {
 			mongo.prepareUpsert( req.body.payload, req.body.requestDateTime),
 			( error, data ) => {
 				if( !error ) {
-					let response = api.responseSetup( req.body.requestId );
+					let response = api.prepareResponse( req.body.requestId );
 
 					response.payload = {
 						updated : true

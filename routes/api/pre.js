@@ -14,13 +14,13 @@ let requestDummy = {
 };
 
 router.get('/', (req, res, next) => {
-	if( api.requestRespond( requestDummy, res ) ) {
+	if( api.requestCheckWithResponse( requestDummy, res ) ) {
 		res.json( { API: 'pre' } );
 	}
 });
 
 router.post('/', (req, res) => {
-	if( api.requestRespond( req.body, res ) ) {
+	if( api.requestCheckWithResponse( req.body, res ) ) {
 		console.log("api/pre", req.body);
 
 		mongo.upsert(
@@ -29,7 +29,7 @@ router.post('/', (req, res) => {
 			mongo.prepareUpsert(req.body.payload,req.body.requestDateTime),
 			( error, data ) => {
 				if( !error ) {
-					let response = api.responseSetup( req.body.requestId );
+					let response = api.prepareResponse( req.body.requestId );
 
 					response.payload = {
 						updated : true

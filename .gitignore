@@ -1,5 +1,4 @@
-
-/PerformFeedbackAPI.iml
-/node_modules/
-/.idea/
-/config/config.local.js
+performfeedbackapi.iml
+node_modules/
+.idea
+config/config.local.js

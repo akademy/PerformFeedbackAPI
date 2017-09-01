@@ -8,27 +8,32 @@ const api = require( "../../lib/api" ),
 let requestDummy = {
 	appOs: "OS System",
 	appVersion: "current app version",
-	key: 'fb57887d-0fc5-4005-a588-0ac140336f69',
-	randomUuid: "app generate uuid",
-	requestId: "request generated uuid"
+	key: config.local.api.lock,
+	randomUuid: "123e4567-e89b-42d3-a456-426655440000",
+	requestId: "123e4567-e89b-42d3-a456-426655440000",
+	requestDateTime: (new Date()).toISOString(),
+	payload: {/*something here*/}
 };
 
 router.get('/', (req, res, next) => {
-	if( api.requestCheckWithResponse( requestDummy, res ) ) {
+	if( api.requestCheckWithResponse( requestDummy, next ) ) {
 		res.json( { API: 'pre' } );
 	}
 });
 
-router.post('/', (req, res) => {
-	if( api.requestCheckWithResponse( req.body, res ) ) {
-		console.log("api/pre", req.body);
+router.post('/', (req, res, next) => {
+	if( api.requestCheckWithResponse( req.body, next ) ) {
+		console.log("POST api/pre/");
 
 		mongo.upsert(
 			config.mongo.collections.pre,
 			{ randomUuid: req.body.randomUuid },
 			mongo.prepareUpsert(req.body.payload,req.body.requestDateTime),
 			( error, data ) => {
-				if( !error ) {
+				if( error ) {
+					api.error( "There was a server database error", 500, next );
+				}
+				else {
 					let response = api.prepareResponse( req.body.requestId );
 
 					response.payload = {
@@ -37,6 +42,7 @@ router.post('/', (req, res) => {
 
 					res.json( response );
 				}
+
 			}
 		)
 	}

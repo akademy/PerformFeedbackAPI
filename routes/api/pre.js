@@ -23,7 +23,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
 	if( api.requestCheckWithResponse( req.body, next ) ) {
-		console.log("POST api/pre/");
+		console.log("POST api/pre/", "randomUuid", req.body.randomUuid);
 
 		mongo.upsert(
 			config.mongo.collections.pre,

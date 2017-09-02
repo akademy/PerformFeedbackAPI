@@ -10,6 +10,7 @@ const indexRoutes = require('./routes/index'),
 	apiRoutes = require('./routes/api');
 
 const api = require('./lib/api');
+const config = require("./config/config");
 
 const app = express();
 
@@ -40,10 +41,9 @@ app.use(function(err, req, res, next) {
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	// TODO: Investiage why this isn't returning title, and is returning statusText
-	//err.title = err.message; // jsonapi, http://jsonapi.org/format/#errors
-
-	console.log(err);
+	if( config.local.debug ) {
+		console.error(err.status, err.message);
+	}
 
 	res.status(err.status || 500).json({
 		status: err.status || 500,

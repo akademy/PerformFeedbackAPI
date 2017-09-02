@@ -11,7 +11,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
 	if( api.requestCheckWithResponse( req.body, next ) ) {
-		console.log("POST api/live/");
+		console.log("POST api/live/","feedbackId",req.body.payload.feedbackId);
 
 		mongo.upsert( config.mongo.collections.live,
 			{ randomUuid: req.body.randomUuid, feedbackId: req.body.payload.feedbackId },

@@ -12,7 +12,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
 	if( api.requestCheckWithResponse( req.body, next ) ) {
-		console.log("POST api/post/");
+		console.log("POST api/post/", "performanceId", req.body.payload.performanceId);
 
 		mongo.upsert( config.mongo.collections.post,
 			{ randomUuid: req.body.randomUuid, performanceId: req.body.payload.performanceId },

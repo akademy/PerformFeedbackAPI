@@ -1,0 +1,9 @@
+performFeedbackApiMongo:
+  image: mongo
+  restart: always
+
+  ports:
+    - 27017:27017
+
+  volumes:
+    - ./vol-mongo/:/data/db

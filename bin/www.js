@@ -77,6 +77,7 @@ app.set('port', port);
 
 let server;
 if( config.local.https.keyFile && config.local.https.certFile ) {
+	console.log("SECURE. Running on HTTPS");
 	const options = {
 		key: fs.readFileSync(config.local.https.keyFile),
 		cert: fs.readFileSync(config.local.https.certFile)
@@ -87,7 +88,16 @@ if( config.local.https.keyFile && config.local.https.certFile ) {
 	}
 
 	server = https.createServer(options, app);
+
+	http.createServer(function (req, res) {
+		// Redirect all GET posts from http to https. The API (which is mostly POST) doesn't redirect - you'll have to get the URL right! 
+		res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+		res.end();
+	}).listen(80);
+
 } else {
+        console.log("UNSECURE. Running on HTTP");
+
 	server = http.createServer(app);
 }
 

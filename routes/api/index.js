@@ -31,7 +31,7 @@ router.get('/', (req, res, next) => {
 
 		data.pre.forEach( (item) => {
 			keys.forEach( (key) => {
-				if( key in item ) {
+				if( key in item && item[key] !== null && ["_id","syncStatus","posting","modifiedTime","modifiedTimeClient","createdTime","createdTimeClient","postingProfile"].indexOf(key) === -1 ) {
 					body1.push(`<p><b>${key}</b>:${item[key]}</p>`);
 				}
 			});
@@ -51,8 +51,17 @@ router.get('/', (req, res, next) => {
 
 		data.live.forEach( (item) => {
 			keys.forEach( (key) => {
-				if( key in item ) {
-					body2.push(`<p><b>${key}</b>:${item[key]}</p>`);
+				if( key in item && item[key] !== null && ["_id","syncStatus","posting","modifiedTime","modifiedTimeClient","createdTime","createdTimeClient"].indexOf(key) === -1 ) {
+
+					if( key === 'data' ) {
+						body2.push(`<p><b>Data</b></p>`);
+						item['data'].forEach( (d) => { 
+							body2.push("<p>&nbsp;&nbsp;" + (new Date(d.ts)).toISOString() + "</p>");
+						});
+					}
+					else {
+						body2.push(`<p><b>${key}</b>:${item[key]}</p>`);
+					}
 				}
 			});
 			body2.push( "<hr/>" );
@@ -71,7 +80,7 @@ router.get('/', (req, res, next) => {
 
 		data.post.forEach( (item) => {
 			keys.forEach( (key) => {
-				if( key in item ) {
+				if( key in item && item[key] !== null && ["_id","syncStatus","posting","modifiedTime","modifiedTimeClient","createdTime","createdTimeClient"].indexOf(key) === -1 ) {
 					body3.push(`<p><b>${key}</b>:${item[key]}</p>`);
 				}
 			});
@@ -89,7 +98,7 @@ router.get('/', (req, res, next) => {
 				<h2>Live</h2>
 				${body2}
 				<hr/>
-				<h2>Post</h2>
+				<h2>Questions</h2>
 				${body3}
 				<hr/>
 			</body></html>

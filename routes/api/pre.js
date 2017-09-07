@@ -25,10 +25,16 @@ router.post('/', (req, res, next) => {
 	if( api.requestCheckWithResponse( req.body, next ) ) {
 		console.log("POST api/pre/", "randomUuid", req.body.randomUuid);
 
+		const data = req.body.payload;
+		data.additional = {
+			appOs: req.body.appOs,
+			appVersion: req.body.appVersion
+		};
+
 		mongo.upsert(
 			config.mongo.collections.pre,
 			{ randomUuid: req.body.randomUuid },
-			mongo.prepareUpsert(req.body.payload,req.body.requestDateTime),
+			mongo.prepareUpsert( data,req.body.requestDateTime),
 			( error, data ) => {
 				if( error ) {
 					api.error( "There was a server database error", 500, next );

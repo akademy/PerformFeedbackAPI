@@ -7,7 +7,8 @@ const config = {
 		collections: {
 			pre: "pre",
 			live: "live",
-			post: "post"
+			post: "post",
+			private: "private"
 		}
 	}
 };

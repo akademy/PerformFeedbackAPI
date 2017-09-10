@@ -18,7 +18,7 @@ router.use( '/post', post );
 });*/
 
 router.get('/', (req, res, next) => {
-	mongo.select( (error, data ) => {
+	mongo.selectAll( (error, data ) => {
 
 		let body1 = [];
 		let keys = [];

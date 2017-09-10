@@ -21,11 +21,41 @@ router.get('/', (req, res, next) => {
 	}
 });
 
+router.get('/anon', (req, res, next) => {
+	mongo.select(config.mongo.collections.pre,
+		{},
+		(error, data) => {
+
+			if( error ) {
+				api.error( "There was a server database error", 500, next );
+			}
+			else {
+				res.json( data )
+			}
+		})
+});
+
 router.post('/', (req, res, next) => {
 	if( api.requestCheckWithResponse( req.body, next ) ) {
 		console.log("POST api/pre/", "randomUuid", req.body.randomUuid);
 
-		const data = req.body.payload;
+		let payload = req.body.payload;
+
+		// Take out private stuff
+		const privy = {
+			email: payload.email,
+			emailFuture: payload.emailFuture
+		};
+
+		delete payload.email;
+		delete payload.emailFuture;
+
+		// Take out unwanted "on client" stuff
+		delete payload.syncStatus;
+		delete payload.postingProfile;
+
+		// Remember OS and app version
+		const data = payload;
 		data.additional = {
 			appOs: req.body.appOs,
 			appVersion: req.body.appVersion
@@ -40,13 +70,27 @@ router.post('/', (req, res, next) => {
 					api.error( "There was a server database error", 500, next );
 				}
 				else {
-					let response = api.prepareResponse( req.body.requestId );
 
-					response.payload = {
-						updated : true
-					};
+					mongo.upsert(
+						config.mongo.collections.private,
+						{ email:privy.email },
+						mongo.prepareUpsert( privy, req.body.requestDateTime ),
+						( error, data ) => {
+							if (error) {
+								api.error("There was a server database error", 500, next);
+							}
+							else {
 
-					res.json( response );
+								let response = api.prepareResponse( req.body.requestId );
+
+								response.payload = {
+									updated : true
+								};
+
+								res.json( response );
+							}
+						}
+					)
 				}
 
 			}

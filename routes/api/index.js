@@ -59,7 +59,7 @@ router.get('/', (req, res, next) => {
 					if( key === 'data' ) {
 						body2.push(`<p><b>Data</b></p>`);
 						item['data'].forEach( (d) => { 
-							body2.push("<p>&nbsp;&nbsp;" + (new Date(d.ts)).toISOString() + "</p>");
+							body2.push("<p>&nbsp;&nbsp;" + (new Date(d.ts)).toISOString() + (d.ty ? " - " + d.ty : "" ) + (d.error ? " (accidental)":"" )  + "</p>");
 						});
 					}
 					else {

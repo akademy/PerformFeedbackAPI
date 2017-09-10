@@ -30,6 +30,7 @@ router.get('/', (req, res, next) => {
 		}
 
 		data.pre.forEach( (item) => {
+			keys = Object.keys( item );
 			keys.forEach( (key) => {
 				if( key in item && item[key] !== null && ["_id","syncStatus","posting","modifiedTime","modifiedTimeClient","createdTime","createdTimeClient","postingProfile"].indexOf(key) === -1 ) {
 					body1.push(`<p><b>${key}</b>:${item[key]}</p>`);
@@ -50,6 +51,8 @@ router.get('/', (req, res, next) => {
 		}
 
 		data.live.forEach( (item) => {
+                        keys = Object.keys( item );
+
 			keys.forEach( (key) => {
 				if( key in item && item[key] !== null && ["_id","syncStatus","posting","modifiedTime","modifiedTimeClient","createdTime","createdTimeClient"].indexOf(key) === -1 ) {
 
@@ -79,6 +82,8 @@ router.get('/', (req, res, next) => {
 		}
 
 		data.post.forEach( (item) => {
+                        keys = Object.keys( item );
+
 			keys.forEach( (key) => {
 				if( key in item && item[key] !== null && ["_id","syncStatus","posting","modifiedTime","modifiedTimeClient","createdTime","createdTimeClient"].indexOf(key) === -1 ) {
 					body3.push(`<p><b>${key}</b>:${item[key]}</p>`);

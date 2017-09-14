@@ -35,6 +35,22 @@ router.get('/anon', (req, res, next) => {
 		})
 });
 
+router.get('/anon/:uuid', (req, res, next) => {
+	mongo.select(config.mongo.collections.pre,
+		{"randomUuid":req.params.uuid},
+		(error, data) => {
+
+			if( error ) {
+				api.error( "There was a server database error", 500, next );
+			}
+			else {
+				res.json( data )
+			}
+		})
+});
+
+
+
 router.post('/', (req, res, next) => {
 	if( api.requestCheckWithResponse( req.body, next ) ) {
 		console.log("POST api/pre/", "randomUuid", req.body.randomUuid);

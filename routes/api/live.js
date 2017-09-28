@@ -34,6 +34,28 @@ router.post('/', (req, res, next) => {
 	}
 });
 
+router.get('/timeline/:from/:to', (req, res, next) => {
+	var dateStringFrom = (new Date(req.params.from)).toISOString(),
+		dateStringTo = (new Date(req.params.to)).toISOString();
+
+	mongo.select(config.mongo.collections.live,
+		{
+			createdTime: {
+				'$gte' : dateStringFrom,
+				'$lte' : dateStringTo
+			},
+		},
+		(error, data) => {
+
+			if( error ) {
+				api.error( "There was a server database error", 500, next );
+			}
+			else {
+				res.json( data )
+			}
+		})
+});
+
 /* Always:
 	request: {
 		appOs: OS System

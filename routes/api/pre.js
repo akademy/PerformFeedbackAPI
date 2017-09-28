@@ -35,9 +35,10 @@ router.get('/anon', (req, res, next) => {
 		})
 });
 
-router.get('/anon/:uuid', (req, res, next) => {
+router.get('/anon/:uuids', (req, res, next) => {
 	mongo.select(config.mongo.collections.pre,
-		{"randomUuid":req.params.uuid},
+		{"randomUuid": {'$in' :
+			JSON.parse(req.params.uuids)} },
 		(error, data) => {
 
 			if( error ) {

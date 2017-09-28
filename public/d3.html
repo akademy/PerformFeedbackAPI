@@ -39,8 +39,12 @@
 			<div class="main wrapper clearfix">
 
 				<form>
-					<label for="dateFrom">From: </label><input type="date" id="dateFrom" value="2017-09-15"/>
-					<label for="dateTo">To: </label><input type="date" id="dateTo" value="2017-09-17"/>
+					<label for="dateFrom">From: </label>
+					<input type="date" id="dateFrom" value="2017-09-15"/>
+					<input type="time" id="timeFrom" value="00:00:00"/>
+					<label for="dateTo">To: </label>
+					<input type="date" id="dateTo" value="2017-09-17"/>
+					<input type="time" id="timeTo" value="00:00:00"/>
 				</form>
 				<div id="message"></div>
 
@@ -86,7 +90,9 @@
 							dTom = new Date( Date.now() + 1000*60*60*24 );
 
 						d3.select("#dateFrom").property("value", dateString(d) );
+						d3.select("#timeFrom").property("value", timeString(d) );
 						d3.select("#dateTo").property("value", dateString(dTom) );
+						d3.select("#timeTo").property("value", timeString(dTom) );
 
 						function dateString( d ) {
 							return d.getFullYear() + "-" +
@@ -94,10 +100,17 @@
 								(d.getDate() < 10 ? "0" : '') + d.getDate()
 						}
 
+
+						function timeString( d ) {
+							return (d.getHours < 10 ? "0" : '' ) + d.getHours() + ":" +
+								(d.getMinutes() < 10 ? "0" : '') + (d.getMinutes()) + ":" +
+								(d.getSeconds() < 10 ? "0" : '') + d.getSeconds()
+						}
+
 						var profiles = [];
 						function dataUpdate() {
-							var from = d3.select("#dateFrom").property("value") + 'T00:00:00.000Z',
-								to   = d3.select("#dateTo").property("value") + 'T00:00:00.000Z';
+							var from = d3.select("#dateFrom").property("value") + 'T' + d3.select("#timeFrom").property("value") + "Z",
+								to   = d3.select("#dateTo").property("value") + 'T' + d3.select("#timeTo").property("value") + "Z";
 
 							d3.json("/api/live/timeline/" + from + "/" + to,
 								function(error, json) {

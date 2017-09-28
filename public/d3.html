@@ -50,6 +50,9 @@
 
 				<script type="application/javascript">
 					(function(){
+
+						var debug = new URLSearchParams(window.location.search).has("debug");
+
 						var margin = {top: 20, right: 50, bottom: 30, left: 100},
 							width = 960 - margin.left - margin.right,
 							height = 600 - margin.top - margin.bottom;
@@ -69,7 +72,7 @@
 						var xAxis = d3.svg.axis()
 							.scale( x )
 							.orient( "bottom" )
-							.tickFormat( d3.time.format("%d/%m %Hh") );
+							.tickFormat( d3.time.format("%H:%M:%S") );
 
 						var svg = d3.select("body").append("svg")
 							.attr("width", width + margin.left + margin.right)
@@ -108,7 +111,7 @@
 						}
 
 						var profiles = [];
-						function dataUpdate() {
+						function dataUpdate(error,json) {
 							var from = d3.select("#dateFrom").property("value") + 'T' + d3.select("#timeFrom").property("value") + "Z",
 								to   = d3.select("#dateTo").property("value") + 'T' + d3.select("#timeTo").property("value") + "Z";
 
@@ -172,8 +175,10 @@
 									svg.select(".y.axis").call(yAxis);
 									svg.select(".x.axis").call(xAxis);
 
-									svg.selectAll( ".bar" )
-										.data( data )
+									var bars = svg.selectAll( ".bar" )
+										.data( data );
+
+									bars
 										.enter()
 											.append( "rect" )
 											.attr( "class", "bar" )
@@ -182,13 +187,73 @@
 											.attr( "x", function(d) { return x(d.time); } )
 											.attr( "width", 1 )
 											.style( "fill", function(d) { return colorOf(d.type); } );
+									bars
+										.attr( "y", function(d) { return y(d.type); } )
+										.attr( "height", y.rangeBand() )
+										.attr( "x", function(d) { return x(d.time); } )
+										.attr( "width", 1 )
+										.style( "fill", function(d) { return colorOf(d.type); } );
+
 
 								});
 
-								setTimeout( dataUpdate, 1000 );
 							}
 
-							dataUpdate();
+
+
+							if( !debug ) {
+								setInterval( dataUpdate, 1000 );
+							}
+							else {
+								var data = [];
+								dataUpdate(null, data);
+
+								setInterval(function () {
+
+									data = createData(data, "tom");
+									data = createData(data, "andrew");
+									data = createData(data, "martin");
+
+									dataUpdate(null, data);
+
+									console.log("e2", data);
+								}, 1000);
+
+								function createData(dataList, name) {
+									var data = null;
+
+									for (var i = 0, z = dataList.length; i < z; i++) {
+										if (dataList[i].randomUuid === name) {
+											data = dataList[i];
+											break;
+										}
+									}
+
+									if (!data) {
+										data = {
+											"randomUuid": name,
+											"data": [
+												{
+													"ty": "pre",
+													"ts": Date.now() - 100
+												}, {
+													"ty": "start",
+													"ts": Date.now() - 50
+												},
+											]
+										};
+										dataList.push(data);
+									}
+
+									if (Math.round(Math.random())) {
+										data.data.push({
+											"ts": Date.now()
+										})
+									}
+
+									return dataList;
+								}
+							}
 					})();
 				</script>
 

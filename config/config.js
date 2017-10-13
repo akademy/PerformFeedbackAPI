@@ -3,12 +3,13 @@ const configLocal = require( './config.local');
 const config = {
 	local: configLocal,
 	mongo: {
-		database: "performFeedback",
+		database: "performFeeback1",
 		collections: {
 			pre: "pre",
 			live: "live",
 			post: "post",
-			private: "private"
+			private: "private",
+			combined : "combined"
 		}
 	}
 };

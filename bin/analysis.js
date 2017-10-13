@@ -73,6 +73,34 @@ const async = require('async');
 							},
 								() => {
 									console.log("Done Live");
+									mongo.insertMany( config.mongo.collections.combined, pres, () => {
+										console.log("Done Pre");
+
+										mongo.select(config.mongo.collections.post, {},
+											(error, posts) => {
+												for( var i=0, z=posts.length;i<z; i++) {
+													var post = posts[i],
+														randomUuid = post.randomUuid;
+
+													delete post.syncStatus;
+													delete post.posting;
+													delete post._id;
+												}
+
+												async.each( posts, ( post, doneAnEach ) => {
+													var randomUuid = post.randomUuid;
+													delete post.randomUuid;
+													mongo.update( config.mongo.collections.combined,
+														{ 'randomUuid':randomUuid },
+														{ '$set' : { "post" : post } },
+														() => {doneAnEach();}
+													)
+												}, () => {
+													console.log("Done post");
+												})
+											}
+										);
+									})
 								}
 							)
 						});

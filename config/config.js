@@ -9,7 +9,8 @@ const config = {
 			live: "live",
 			post: "post",
 			private: "private",
-			combined : "combined"
+			combined : "combined",
+			reduced: "reduced"
 		}
 	}
 };

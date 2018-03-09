@@ -7,6 +7,41 @@ const async = require('async');
 // 1.0.1: (Android) 2017-09-10
 // 1.0.2 : (iOS) 2017-09-18, (Android) 2017-09-16?
 // 1.0.3 : (iOS) 2017-09-25, (Android) 2017-09-22
+// 1.1.1 : (ios) 2018-01-21, (android) 2018-01-20
+// setup
+//
+
+/*
+	CSV export
+	mongoexport --host localhost --db performFeedback --collection reduced --type=csv --out test.csv --fields randomUuid,modifiedTime,modifiedTimeClient,randomId,dateOfBirth,musicTraining,musicField,mathTraining,mathField,education,educationOther,musicListen,createdTime,createdTimeClient,additional.appOs,post.performanceId,post.modifiedTime,post.modifiedTimeClient,post.musicLength,post.describe,post.influences,post.enjoy,post.familiar,post.often,post.familiarPiece,post.participation,post.motivation,post.comments,post.createdTime,post.createdTimeClient,live.createdTime,live.createdTimeClient,live.modifiedTime,live.modifiedTimeClient,live.data.raw
+ */
+
+let performanceManchester2017 = "manchester2017";
+let performanceOxford2018 = "oxfordJanuary2018";
+
+let analysePerformance = performanceManchester2017;//performanceOxford2018;//
+
+let startTimePlusFiveMinutes,
+	preIncludeAfter,
+	liveIncludeAfter,
+	postIncludeAfter;
+
+// Performance Manchester2017
+if( analysePerformance === performanceManchester2017 ) {
+	// About the time the performance took place
+	startTimePlusFiveMinutes = '2017-10-04T19:15:00';
+
+	preIncludeAfter = "2017-09-22";
+	liveIncludeAfter = "2017-10-04";
+	postIncludeAfter = "2017-10-04";
+}
+else if( analysePerformance === performanceOxford2018 ) {
+	startTimePlusFiveMinutes = '2017-10-04T19:15:00';
+
+	preIncludeAfter = "2018-01-21";
+	liveIncludeAfter = "2018-01-27";
+	postIncludeAfter = "2018-01-27";
+}
 
 /*
 // Pre useful data.
@@ -95,7 +130,7 @@ function cleanLive( complete ) {
 						}
 
 						if( haveUsefulData ) {
-							if (lives[i].createdTime > '2017-10-04T19:15:00') { // About 5 mins before the performance
+							if (lives[i].createdTime > startTimePlusFiveMinutes) { // About 5 mins before the performance
 
 								livesNew.push(lives[i]);
 							}
@@ -153,9 +188,9 @@ function removeNoLive( complete ) {
 }
 function removeOld( complete ) {
 	const find = { "$and" : [
-		{"modifiedTime" : { "$not" : { "$gt" : "2017-09-22" } } },
-		{ "lives.modifiedTime" : { "$not" : { "$gt" : "2017-10-04" } } },
-		{ "post.modifiedTime" : { "$not" : {"$gt" : "2017-10-04" } } }
+		{"modifiedTime" : { "$not" : { "$gt" : preIncludeAfter } } }, // Before release date
+		{ "lives.modifiedTime" : { "$not" : { "$gt" : liveIncludeAfter } } }, // Before performance
+		{ "post.modifiedTime" : { "$not" : {"$gt" : postIncludeAfter } } } // Before performance
 	] };
 
 	mongo.remove(config.mongo.collections.reduced, find, (error) => {

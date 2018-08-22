@@ -94,6 +94,24 @@ else if( analysePerformance === performanceOxford2018 ) {
 
 						removeNoLive((error) => {
 							if (error) { return; }
+
+							duplicateReduced( (error) => {
+								if (error) { return; }
+
+								switchLiveToOffsets( (error) => {
+									if (error) { return; }
+
+									flattenAndDuplicate( (error) => {
+										if (error) { return; }
+
+										// mongoexport -d performFeedback -c flattenLive --type=csv -o live.csv --fields "randomUuid,createdTime,createdTimeClient,modifiedTime,modifiedTimeClient,data"
+
+										// (without live) mongoexport -d performFeedback -c flatten --type=csv -o data.csv --fields "randomUuid,modifiedTime,modifiedTimeClient,randomId,dateOfBirth,musicTraining,musicField,mathTraining,mathField,education,educationOther,musicListen,createdTime,createdTimeClient,additional_appOs,post_performanceId,post_modifiedTime,post_modifiedTimeClient,post_musicLength,post_describe,post_influences,post_enjoy,post_familiar,post_often,post_familiarPiece,post_participation,post_motivation,post_comments,post_createdTime,post_createdTimeClient"
+										// (with live) mongoexport -d performFeedback -c flatten --type=csv -o data.csv --fields "randomUuid,modifiedTime,modifiedTimeClient,randomId,dateOfBirth,musicTraining,musicField,mathTraining,mathField,education,educationOther,musicListen,createdTime,createdTimeClient,additional_appOs,post_performanceId,post_modifiedTime,post_modifiedTimeClient,post_musicLength,post_describe,post_influences,post_enjoy,post_familiar,post_often,post_familiarPiece,post_participation,post_motivation,post_comments,post_createdTime,post_createdTimeClient,live_createdTime,live_createdTimeClient,live_modifiedTime,live_modifiedTimeClient,live_data"
+									})
+
+								});
+							});
 						});
 					});
 				});
@@ -162,16 +180,47 @@ function cleanLive( complete ) {
 					data.live = livesNew[0];
 				}
 
-				//mongo.insertMany( config.mongo.collections.reduced, [data], (error) => {
-				//	eachComplete(error);
-				//});
-				eachComplete();
+				mongo.update( config.mongo.collections.reduced, {"_id":data._id}, data, (error) => {
+					eachComplete(error);
+				});
+				//eachComplete();
 			},
 			(error) => {
 				console.log("Done live clean");
 				complete(error);
 			}
 		)
+	});
+}
+
+function switchLiveToOffsets( complete ) {
+	mongo.select(config.mongo.collections.offset, {"live" : { "$exists" : true } }, (error, datas) => {
+		if (error) {
+			console.error("Couldn't select. " + error);
+			return;
+		}
+
+		async.eachLimit(datas, 4,
+
+			(data, eachComplete) => {
+
+				const firstTimestamp = data.live.data[0].ts;
+
+				for (let i = 0, z = data.live.data.length; i < z; i++) {
+					data.live.data[i].offset = data.live.data[i].ts - firstTimestamp;
+				}
+
+				mongo.update( config.mongo.collections.offset, {"_id":data._id}, data, (error) => {
+					eachComplete(error);
+				});
+				//eachComplete();
+		},
+			(error) => {
+				console.log("Switched to offset");
+
+				complete(error);
+			}
+		);
 	});
 }
 
@@ -218,18 +267,131 @@ function duplicateCombined( complete ) {
 		});
 }
 
+function duplicateReduced( complete ) {
+	mongo.duplicateCollection(
+		config.mongo.collections.reduced,
+		config.mongo.collections.offset,
+		(error) => {
+			if (error) {
+				console.error("Couldn't duplicate to offset " + error);
+				return;
+			}
+
+			console.log("Duplicated to Offset");
+
+			complete(error);
+		});
+}
+
 function dropCollections( complete ) {
 	"use strict";
 	mongo.drop( config.mongo.collections.combined, (error) => {
 		if( error ) { console.error( "Drop problem. " + error ); return complete(error);}
 		mongo.drop( config.mongo.collections.reduced, (error) => {
 			if (error) { console.error("Drop problem. " + error); return complete(error);}
+			mongo.drop( config.mongo.collections.offset, (error) => {
+				if (error) { console.error("Drop problem. " + error); return complete(error);}
+				mongo.drop( config.mongo.collections.flatten, (error) => {
+					if (error) { console.error("Drop problem. " + error); return complete(error);}
+					mongo.drop( config.mongo.collections.flattenLive, (error) => {
+						if (error) { console.error("Drop problem. " + error); return complete(error);}
 
-			console.log("Dropped collections");
-	 		return complete(error);
+						console.log("Dropped collections");
+						return complete(error);
+					});
+				});
+			});
 		});
 
 	} );
+}
+
+function flattenAndDuplicate( complete ) {
+	mongo.select(config.mongo.collections.offset, {"live" : { "$exists" : true } }, (error, datas) => {
+		if (error) {
+			console.error("Couldn't select. " + error);
+			return;
+		}
+
+		async.eachLimit(datas, 10,
+
+			(data, eachComplete) => {
+
+				if (data.additional) {
+					if (data.additional.appOs) {
+						data.additional_appOs = data.additional.appOs;
+					}
+					delete data.additional;
+				}
+				if( data.post ) {
+					let keys = Object.keys( data.post );
+
+					for( let i=0, z=keys.length; i<z; i++ ) {
+						data["post_" + keys[i]] = data.post[keys[i]];
+						delete data.post[keys[i]];
+					}
+
+					if( data.post_describe ) {
+						data.post_describe = data.post_describe.join(";;");
+					}
+
+					if( data.post_motivation ) {
+						data.post_motivation = data.post_motivation.join(";;");
+					}
+
+					delete data.post;
+				}
+
+				let dataLive = null;
+				if( data.live ) {
+
+					let keys = Object.keys( data.live );
+					for( let i=0, z=keys.length; i<z; i++ ) {
+						data["live_" + keys[i]] = data.live[keys[i]];
+						//delete data.live[keys[i]];
+					}
+
+					dataLive = data.live;
+
+					let dataLiveData = [];
+
+					for (let i = 0, z = data.live.data.length; i < z; i++) {
+						let dataItem = data.live.data[i].offset;
+						if( data.live.data[i].ty ) {
+							dataItem += ";;" + data.live.data[i].ty;
+						}
+						if( data.live.data[i].error ) {
+							dataItem += ";;error";
+						}
+						dataLiveData.push( dataItem );
+					}
+
+					data.live_data = dataLiveData;
+
+					delete data.live;
+					delete data.lives;
+				}
+
+
+				mongo.insertMany( config.mongo.collections.flatten, [data], (error) => {
+
+					//if( dataLive ) {
+					//	mongo.insertMany(config.mongo.collections.flattenLive, [dataLive], (error) => {
+					//		eachComplete(error);
+					//	});
+					//}
+					//else {
+						eachComplete(error);
+					//}
+				});
+			},
+			(error) => {
+				console.log("Flattened");
+
+				complete(error);
+			}
+		);
+	});
 }
 
 function combineCollections( callbackComplete ) {

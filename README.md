@@ -38,6 +38,9 @@ Get the required packages:
 
     npm install    
     
+Install forever monitoring tool
+
+    npm install forever -g
 
 Start
 -----
@@ -50,7 +53,7 @@ Create the config.local.js file on the config directory. Then Update the details
 Start the app:
 
 	docker-compose up -d
-    ./bin/www.js &
+    bin/forever.sh
 
 Database problem
 ----------------

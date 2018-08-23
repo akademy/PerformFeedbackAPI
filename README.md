@@ -52,8 +52,8 @@ Create the config.local.js file on the config directory. Then Update the details
 
 Start the app:
 
-	docker-compose up -d
-    bin/forever.sh
+	sudo docker-compose up -d
+    sudo bin/forever.sh
 
 Database problem
 ----------------

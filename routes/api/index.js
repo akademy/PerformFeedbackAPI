@@ -1,9 +1,7 @@
 const express = require('express'),
 	router = express.Router();
 
-const api = require( "../../lib/api" ),
-	mongo = require( "../../lib/mongo"),
-	config = require("../../config/config");
+const mongo = require( "../../lib/mongo");
 
 const pre = require('./pre'),
 		live = require('./live'),
@@ -13,9 +11,6 @@ router.use( '/pre', pre );
 router.use( '/live', live );
 router.use( '/post', post );
 
-/*router.get('/', (req, res, next) => {
-	res.json( {API: ''} );
-});*/
 
 router.get('/', (req, res, next) => {
 	mongo.selectAll( (error, data ) => {

@@ -220,6 +220,14 @@
 									;
 
 									bars
+										.exit()
+										.style( "fill", function(d) {
+											return "rgb(255,255,255)";
+										} )
+										.remove()
+									;
+
+									bars
 										.style( "fill", function(d) {
 											if( d.type === "error") {
 												return "rgb(100,100,100)";

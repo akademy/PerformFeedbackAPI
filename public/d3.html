@@ -207,7 +207,7 @@
 									svg.select(".x.axis").call(xAxis);
 
 									var bars = svg.selectAll( ".bar" )
-										.data( data, function(d) { return d.name; } );
+										.data( data );
 
 									bars
 										.enter()

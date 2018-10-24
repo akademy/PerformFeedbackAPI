@@ -37,18 +37,26 @@ router.get('/anon', (req, res, next) => {
 
 router.get('/anon/:uuids', (req, res, next) => {
 	mongo.select(config.mongo.collections.pre,
-		{"randomUuid": req.params.uuids },
+		{"randomUuid": {'$in' :
+			JSON.parse(req.params.uuids)} },
 		(error, data) => {
 
 			if( error ) {
 				api.error( "There was a server database error", 500, next );
 			}
 			else {
-				res.json( data )
+
+				var dataUnrestricted = [];
+				for( var i=0, z=data.length; i<z; i++) {
+					dataUnrestricted.push({
+						randomId: data[i].randomId,
+						randomUuid: data[i].randomUuid
+					});
+				}
+				res.json( dataUnrestricted );
 			}
 		})
 });
-
 
 
 router.post('/', (req, res, next) => {

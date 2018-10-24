@@ -169,10 +169,13 @@
 											if( !first ) {
 												first = d2.ts;
 											}
-											data.push({
-												type: randomId ? randomId : randomUuid,
+											var timestamp = {
+												type: d2.ty ? d2.ty : (d2.error ? "error" : null ),
+												name: randomId ? randomId : randomUuid,
 												time: (d2.ts - first) / 1000 //new Date(d2.ts)
-											});
+											};
+											console.log(timestamp.type);
+											data.push(timestamp);
 										});
 
 										//console.log( data );
@@ -187,9 +190,9 @@
 										);
 									}
 
-									y.domain( data.map( function(d) { return d.type; } ) );
+									y.domain( data.map( function(d) { return d.name; } ) );
 									x.domain( d3.extent( data, function(d) { return d.time; } ) );
-									colorOf.domain( data.map( function(d) { return d.type; } ) );
+									colorOf.domain( data.map( function(d) { return d.name; } ) );
 
 									yAxis.scale( y );
 									xAxis.scale( x );
@@ -204,17 +207,26 @@
 										.enter()
 											.append( "rect" )
 											.attr( "class", "bar" )
-											.attr( "y", function(d) { return y(d.type); } )
-											.attr( "height", y.rangeBand() )
-											.attr( "x", function(d) { return x(d.time); } )
-											.attr( "width", 1 )
-											.style( "fill", function(d) { return colorOf(d.type); } );
+
 									bars
-										.attr( "y", function(d) { return y(d.type); } )
+										.attr( "y", function(d) { return y(d.name); } )
 										.attr( "height", y.rangeBand() )
 										.attr( "x", function(d) { return x(d.time); } )
-										.attr( "width", 1 )
-										.style( "fill", function(d) { return colorOf(d.type); } );
+										.attr( "width", function(d) {
+											if( d.type === "error" ) {
+												return 1;
+											}
+											if( d.type === "start" || d.type === "pre") {
+												return 1;
+											}
+											return 4;
+										} )
+										.style( "fill", function(d) {
+											if( d.type === "error") {
+												return "rgb(100,100,100)";
+											}
+											return colorOf(d.name);
+										} );
 
 
 								});

@@ -119,6 +119,7 @@
 						}
 
 						var profiles = [];
+						var firstPaint = true;
 						function dataUpdate(error,json) {
 							var from = d3.select("#dateFrom").property("value") + 'T00:00:00.000Z'; // + d3.select("#timeFrom").property("value") + "Z",
 								to   = d3.select("#dateTo").property("value") + 'T00:00:00.000Z';// + d3.select("#timeTo").property("value") + "Z";
@@ -144,6 +145,10 @@
 
 									json.sort( function(j1,j2) { return j1.createdTime.substr(11,8) > j2.createdTime.substr(11,8) });
 
+									if( debug && firstPaint ) {
+										delete json[3];
+										firstPaint = false;
+									}
 									json.forEach( function(d1) {
 										var randomId = null,
 											randomUuid =  d1.randomUuid;
@@ -174,7 +179,6 @@
 												name: randomId ? randomId : randomUuid,
 												time: (d2.ts - first) / 1000 //new Date(d2.ts)
 											};
-											console.log(timestamp.type);
 											data.push(timestamp);
 										});
 
@@ -190,8 +194,10 @@
 										);
 									}
 
-									y.domain( data.map( function(d) { return d.name; } ) );
-									x.domain( d3.extent( data, function(d) { return d.time; } ) );
+									var yDomain = data.map( function(d) { return d.name; } ),
+									xDomain = d3.extent( data, function(d) { return d.time; } );
+									y.domain( yDomain );
+									x.domain( xDomain );
 									colorOf.domain( data.map( function(d) { return d.name; } ) );
 
 									yAxis.scale( y );
@@ -207,11 +213,24 @@
 										.enter()
 											.append( "rect" )
 											.attr( "class", "bar" )
+											.attr( "height", 0 )
+											.attr("width", 0)
+											.attr( "y", function(d) { return y(d.name) + (y.rangeBand()/2) } )
+
+									;
 
 									bars
-										.attr( "y", function(d) { return y(d.name); } )
-										.attr( "height", y.rangeBand() )
+										.style( "fill", function(d) {
+											if( d.type === "error") {
+												return "rgb(100,100,100)";
+											}
+											return colorOf(d.name);
+										} )
+										.transition()
+										.duration(1000)
+										.delay( function(d) { return y(d.name) * 2; } )
 										.attr( "x", function(d) { return x(d.time); } )
+										.attr( "height", y.rangeBand() )
 										.attr( "width", function(d) {
 											if( d.type === "error" ) {
 												return 1;
@@ -221,12 +240,10 @@
 											}
 											return 4;
 										} )
-										.style( "fill", function(d) {
-											if( d.type === "error") {
-												return "rgb(100,100,100)";
-											}
-											return colorOf(d.name);
-										} );
+										.attr( "y", function(d) { return y(d.name); } )
+									;
+
+
 
 
 								});
@@ -236,7 +253,7 @@
 
 
 							if( !debug ) {
-								setInterval( dataUpdate, 1000 );
+								setInterval( dataUpdate, 2000 );
 								dataUpdate();
 							}
 							else {
@@ -251,7 +268,6 @@
 
 									dataUpdate(null, data);
 
-									console.log("e2", data);
 								}, 1000);
 
 								function createData(dataList, name) {

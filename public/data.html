@@ -74,7 +74,7 @@
             jQuery.get('/api/pre/anon',{}, function(data) {
             	var anons = "<ul>";
             	data.forEach( function(anonData) {
-                    anons += '<li><a href="/api/pre/anon/' + anonData.randomUuid + '">' + anonData.randomId + '</a></li>';
+                    anons += '<li><a href="/api/pre/anon/[%22' + anonData.randomUuid + '%22]">' + anonData.randomId + '</a></li>';
                 } );
             	anons += '</ul>';
             	jQuery('#anon').html( anons );

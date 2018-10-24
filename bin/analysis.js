@@ -74,7 +74,6 @@ const async = require('async');
 										// (without live) mongoexport -d performFeedback -c flatten --type=csv -o data.csv --fields "randomUuid,modifiedTime,modifiedTimeClient,randomId,dateOfBirth,musicTraining,musicField,mathTraining,mathField,education,educationOther,musicListen,createdTime,createdTimeClient,additional_appOs,post_performanceId,post_modifiedTime,post_modifiedTimeClient,post_musicLength,post_describe,post_influences,post_enjoy,post_familiar,post_often,post_familiarPiece,post_participation,post_motivation,post_comments,post_createdTime,post_createdTimeClient"
 										// (with live) mongoexport -d performFeedback -c flatten --type=csv -o data.csv --fields "randomUuid,modifiedTime,modifiedTimeClient,randomId,dateOfBirth,musicTraining,musicField,mathTraining,mathField,education,educationOther,musicListen,createdTime,createdTimeClient,additional_appOs,post_performanceId,post_modifiedTime,post_modifiedTimeClient,post_musicLength,post_describe,post_influences,post_enjoy,post_familiar,post_often,post_familiarPiece,post_participation,post_motivation,post_comments,post_createdTime,post_createdTimeClient,live_createdTime,live_createdTimeClient,live_modifiedTime,live_modifiedTimeClient,live_data"
 									})
-
 								});
 							});
 						});
@@ -113,7 +112,7 @@ function cleanLive( complete ) {
 						}
 
 						if( haveUsefulData ) {
-							if (lives[i].createdTime > '2017-10-04T19:15:00') { // About 5 mins before the performance
+							if (lives[i].createdTime > '2018-01-27T20:00:00' ) {//'2017-10-04T19:15:00') { // About 5 mins before the performance
 
 								livesNew.push(lives[i]);
 							}
@@ -127,7 +126,7 @@ function cleanLive( complete ) {
 
 					for (let i = 0, z = livesNew.length; i < z; i++) {
 						//message += livesNew[i].createdTime + " ";
-						message += new Date(livesNew[i].data[0].ts).toISOString().replace("2017-10-04T","") + " ";
+						message += new Date(livesNew[i].data[0].ts).toISOString().replace("2018-01-27T","") + " ";
 					}
 					console.log(message + " " + clientServerTimeCreated);
 				}
@@ -202,9 +201,9 @@ function removeNoLive( complete ) {
 }
 function removeOld( complete ) {
 	const find = { "$and" : [
-		{"modifiedTime" : { "$not" : { "$gt" : "2017-09-22" } } },
-		{ "lives.modifiedTime" : { "$not" : { "$gt" : "2017-10-04" } } },
-		{ "post.modifiedTime" : { "$not" : {"$gt" : "2017-10-04" } } }
+		{"modifiedTime" : { "$not" : { "$gt" : "2018-01-20" } } },
+		{ "lives.modifiedTime" : { "$not" : { "$gt" : "2018-01-27" } } },
+		{ "post.modifiedTime" : { "$not" : {"$gt" : "2018-01-27" } } }
 	] };
 
 	mongo.remove(config.mongo.collections.reduced, find, (error) => {

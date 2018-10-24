@@ -24,7 +24,7 @@
 
 		<div class="header-container">
 			<header class="wrapper clearfix">
-				<h1 class="title">Alpha test</h1>
+				<h1 class="title">Data capture</h1>
 				<nav>
 					<ul>
 						<li><a href="/">home</a></li>
@@ -40,11 +40,11 @@
 
 				<form>
 					<label for="dateFrom">From: </label>
-					<input type="date" id="dateFrom" value="2017-09-15"/>
-					<input type="time" id="timeFrom" value="00:00:00"/>
+					<input type="date" id="dateFrom" value="2018-10-25"/>
+					<!-- input type="time" id="timeFrom" value="00:00:00"/ -->
 					<label for="dateTo">To: </label>
-					<input type="date" id="dateTo" value="2017-09-17"/>
-					<input type="time" id="timeTo" value="00:00:00"/>
+					<input type="date" id="dateTo" value="2018-10-26"/>
+					<!-- input type="time" id="timeTo" value="00:00:00"/ -->
 				</form>
 				<div id="message"></div>
 
@@ -53,7 +53,7 @@
 
 						var debug = new URLSearchParams(window.location.search).has("debug");
 
-						var margin = {top: 20, right: 50, bottom: 30, left: 100},
+						var margin = {top: 20, right: 50, bottom: 60, left: 150},
 							width = 960 - margin.left - margin.right,
 							height = 600 - margin.top - margin.bottom;
 
@@ -62,7 +62,9 @@
 						var y = d3.scale.ordinal()
 							.rangeRoundBands( [height, 0], 0.3 );
 
-						var x = d3.time.scale()
+						//var x = d3.time.scale()
+						//	.range( [5, width] );
+						var x = d3.scale.linear()
 							.range( [5, width] );
 
 						var yAxis = d3.svg.axis()
@@ -72,7 +74,7 @@
 						var xAxis = d3.svg.axis()
 							.scale( x )
 							.orient( "bottom" )
-							.tickFormat( d3.time.format("%H:%M:%S") );
+							//.tickFormat( d3.time.format("%H:%M:%S") );
 
 						var svg = d3.select("body").append("svg")
 							.attr("width", width + margin.left + margin.right)
@@ -89,8 +91,14 @@
 							.attr("class", "y axis")
 							.call( yAxis );
 
-						var d = new Date(),
-							dTom = new Date( Date.now() + 1000*60*60*24 );
+						svg.append("text")
+							.attr("x", 300)
+							.attr("y", height + margin.top + 20)
+							.text("Seconds");
+
+						var now = new Date(),
+							d = new Date( now.toISOString().substr(0,10) ),
+							dTom = new Date( d.valueOf() + 1000*60*60*24 );
 
 						d3.select("#dateFrom").property("value", dateString(d) );
 						d3.select("#timeFrom").property("value", timeString(d) );
@@ -112,8 +120,8 @@
 
 						var profiles = [];
 						function dataUpdate(error,json) {
-							var from = d3.select("#dateFrom").property("value") + 'T' + d3.select("#timeFrom").property("value") + "Z",
-								to   = d3.select("#dateTo").property("value") + 'T' + d3.select("#timeTo").property("value") + "Z";
+							var from = d3.select("#dateFrom").property("value") + 'T00:00:00.000Z'; // + d3.select("#timeFrom").property("value") + "Z",
+								to   = d3.select("#dateTo").property("value") + 'T00:00:00.000Z';// + d3.select("#timeTo").property("value") + "Z";
 
 							d3.json("/api/live/timeline/" + from + "/" + to,
 								function(error, json) {
@@ -134,6 +142,8 @@
 									var data = [],
 										randomUuidsNeeded = [];
 
+									json.sort( function(j1,j2) { return j1.createdTime.substr(11,8) > j2.createdTime.substr(11,8) });
+
 									json.forEach( function(d1) {
 										var randomId = null,
 											randomUuid =  d1.randomUuid;
@@ -146,14 +156,26 @@
 										}
 										if( !randomId ) {
 											randomUuidsNeeded.push( randomUuid );
+											randomId = d1.createdTime.substr(11,8);
+										}
+										else {
+											randomId += " " + d1.createdTime.substr(11,8);
 										}
 
+										// console.log(d1,randomId);
+
+										var first = null;
 										d1.data.forEach( function(d2) {
+											if( !first ) {
+												first = d2.ts;
+											}
 											data.push({
 												type: randomId ? randomId : randomUuid,
-												time: new Date(d2.ts)
+												time: (d2.ts - first) / 1000 //new Date(d2.ts)
 											});
 										});
+
+										//console.log( data );
 									});
 
 									if( randomUuidsNeeded.length ) {
@@ -203,6 +225,7 @@
 
 							if( !debug ) {
 								setInterval( dataUpdate, 1000 );
+								dataUpdate();
 							}
 							else {
 								var data = [];
@@ -262,7 +285,7 @@
 
 		<div class="footer-container">
 			<footer class="wrapper">
-				<h3>&copy; 2017</h3>
+				<h3>&copy; FAST 2018</h3>
 			</footer>
 		</div>
 

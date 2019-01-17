@@ -1,6 +1,8 @@
 Perform Feedback App Server
 ===========================
 
+This runs a server which the mobile app communicates with.
+
 Setup
 -----
 

@@ -1,0 +1,11 @@
+cff-version: 1.0.3
+message: If you use this software, please cite it as below.
+authors:
+  - family-names: Wilcoxson
+    given-names: John Matthew
+    email: matthew.wilcoxson@oerc.ox.ac.uk
+    website: http://akademy.co.uk
+title: PRiSM Perception App
+version: 1.0.4
+doi: 110.5281/zenodo.2542790
+date-released: 2018-12-18

@@ -12,6 +12,6 @@ pipelines:
           - node
         script: # Modify the commands below to build your repository.
           - npm install
-          - echo "const configLocal = {api: { lock: '' }, https: { port: 40443 }, debug: false, mongo: { host: '', port: ''} }; module.exports = configLocal;" > config/config.local.js
+          - ./bitbucket-piplines.yml.setup.sh
           - npm start
           - npm test

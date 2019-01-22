@@ -12,6 +12,6 @@ pipelines:
           - node
         script: # Modify the commands below to build your repository.
           - npm install
-          - ./bitbucket-piplines.yml.setup.sh
+          - ./bitbucket-pipelines.yml.setup.sh
           - npm start
           - npm test

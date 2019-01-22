@@ -14,4 +14,5 @@ pipelines:
           - npm install
           - ./bitbucket-pipelines.yml.setup.sh
           - npm start &
+          - sleep 5
           - npm test
